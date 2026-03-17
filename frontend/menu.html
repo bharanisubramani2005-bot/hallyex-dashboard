@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Menu | NutriShake Bar</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFC107",
+                        "secondary": "#FF4F81",
+                        "bg-dark": "#FFF0F6",
+                        "bg-darker": "#FFE4F0",
+                        "bg-card": "#FFFFFF",
+                        "bg-card-light": "#FFFFFF",
+                        "pista": "#A8D88E",
+                        "berry": "#FF4F81",
+                        "choco": "#3B1F0F",
+                        "mango": "#FFC107",
+                        "cream": "#FFF8E1",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #FFF0F6;
+            color: #5C3A2A;
+            min-height: 100dvh;
+        }
+
+        .filter-tab.tab-active {
+            background: #FFC107;
+            color: #5C3A2A;
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .fill-1 {
+            font-variation-settings: 'FILL' 1;
+        }
+
+        /* Card hover */
+        .menu-card {
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .menu-card:hover .card-img {
+            transform: scale(1.08);
+        }
+
+        .card-img {
+            transition: transform 0.5s ease;
+        }
+
+        /* Fade-in on scroll */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Filter tab active glow */
+        .tab-active {
+            box-shadow: 0 4px 20px rgba(216, 42, 222, 0.4);
+        }
+
+        /* Glow button */
+        .btn-glow {
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 6px 25px rgba(255, 193, 7, 0.5);
+            transform: translateY(-1px);
+        }
+
+        /* Mojito glow effect */
+        .mojito-glow {
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.15), 0 0 60px rgba(0, 229, 255, 0.05);
+        }
+
+        .mojito-glow:hover {
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.3), 0 0 80px rgba(0, 229, 255, 0.1);
+        }
+
+        /* Page reveal animation */
+        @keyframes pageReveal {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        body {
+            animation: pageReveal 0.5s ease forwards;
+        }
+
+        /* ===== Responsive Image Handling ===== */
+
+        /* Consistent aspect ratio for all card image wrappers */
+        .card-img-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1; /* Default for mobile */
+            overflow: hidden;
+            border-radius: 20px 20px 0 0;
+            background: #f1f5f9;
+        }
+
+        .card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .menu-card:hover .card-img {
+            transform: scale(1.08);
+        }
+
+        /* Shine Effect Overlay */
+        .card-img-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: skewX(-25deg);
+            transition: 0.75s;
+        }
+
+        .menu-card:hover .card-img-container::after {
+            left: 125%;
+        }
+
+        /* Desktop: wider aspect ratio */
+        @media (min-width: 768px) {
+            .card-img-container {
+                aspect-ratio: 4 / 3;
+            }
+        }
+
+        /* Fluid Grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+                gap: 28px;
+            }
+        }
+
+        /* 4K & Ultra-wide Optimization */
+        @media (min-width: 2560px) {
+            .menu-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 40px;
+            }
+        }
+
+        /* ===== New Animated Plus Button ===== */
+        .add-btn-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #FF4F81; /* Vibrant Pink */
+            color: #FFFFFF; /* Pure White Icon */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(255, 79, 129, 0.3);
+            border: none;
+            outline: none;
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+        }
+
+        .add-btn-circle:hover {
+            transform: scale(1.1);
+            background: #FF6FA8;
+            box-shadow: 0 6px 16px rgba(255, 79, 129, 0.4);
+        }
+
+        .add-btn-circle:active {
+            transform: scale(0.9);
+        }
+
+        .add-btn-circle .material-symbols-outlined {
+            font-size: 22px;
+            font-weight: 700;
+            transition: transform 0.4s ease;
+        }
+
+        .add-btn-circle.rotating .material-symbols-outlined {
+            animation: rotateIcon 0.45s ease-in-out forwards;
+        }
+
+        @keyframes rotateIcon {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .add-btn-circle.success {
+            background: #4ADE80; /* Clean green for success */
+            box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
+        }
+
+        /* ===== Search Splash Animations ===== */
+
+        /* Found results banner */
+        .search-found {
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .search-found.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* No results card */
+        .search-empty {
+            display: none;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .search-empty.show {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Floating fruit icons */
+        @keyframes floatUp {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(-8px) rotate(-5deg);
+            }
+
+            50% {
+                transform: translateY(-14px) rotate(3deg);
+            }
+
+            75% {
+                transform: translateY(-6px) rotate(-2deg);
+            }
+        }
+
+        .float-icon {
+            display: inline-block;
+            animation: floatUp 3s ease-in-out infinite;
+        }
+
+        .float-icon:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .float-icon:nth-child(3) {
+            animation-delay: 0.8s;
+        }
+
+        .float-icon:nth-child(4) {
+            animation-delay: 1.2s;
+        }
+
+        /* Bouncing emoji for no-results */
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-18px);
+            }
+
+            60% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .bounce-icon {
+            display: inline-block;
+            animation: bounce 1.8s ease-in-out infinite;
+        }
+
+        /* Sparkle twinkle */
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        .twinkle {
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        .twinkle:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .twinkle:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        /* Result count badge pulse */
+        @keyframes pulseBadge {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .pulse-badge {
+            animation: pulseBadge 2s ease-in-out infinite;
+        }
+
+        /* ===== Drink Splash Loading Styles ===== */
+        .drink-splash {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .drink-splash.active {
+            display: flex;
+        }
+
+        .splash-bg {
+            position: absolute;
+            inset: 0;
+            background: var(--splash-color, #FFC107);
+            transform: scale(0);
+            border-radius: 50%;
+            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .drink-splash.active .splash-bg {
+            transform: scale(3.5);
+            border-radius: 0;
+        }
+
+        .splash-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease 0.3s;
+        }
+
+        .drink-splash.active .splash-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .splash-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            animation: bounceSoft 1s ease-in-out infinite;
+        }
+
+        @keyframes bounceSoft {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+
+        .splash-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            letter-spacing: -0.02em;
+        }
+
+        .splash-glow {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: #03ffb8;
+            filter: blur(50px);
+            opacity: 0.3;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulseGlow 2s infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: translate(-50%, -50%) scale(1.3);
+            }
+        }
+
+        /* Transition wipes */
+        .wipe-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10001;
+            background: #FFF0F6;
+            transform: translateX(-100%);
+            pointer-events: none;
+        }
+
+        .wipe-active .wipe-overlay {
+            animation: wipeRight 0.8s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+
+        @keyframes wipeRight {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            50% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-bg-dark text-secondary font-display">
+
+    <!-- Sticky Navbar -->
+    <nav
+        class="sticky top-0 z-50 bg-bg-darker/90 backdrop-blur-xl border-b border-primary/10 px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="flex items-center gap-1 text-secondary/60 hover:text-secondary transition-colors">
+                <span class="material-symbols-outlined text-xl">arrow_back</span>
+            </a>
+            <h1 class="text-xl font-extrabold tracking-tight">
+                <span class="text-primary">Our</span> <span class="text-secondary">Menu</span>
+            </h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="relative cursor-pointer hover:scale-110 transition-transform"
+                onclick="window.location.href='cart.html'">
+                <span class="material-symbols-outlined text-secondary/80">shopping_cart</span>
+                <span id="cartBadge"
+                    class="absolute -top-1.5 -right-1.5 bg-secondary text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full"
+                    style="display: none;">0</span>
+            </div>
+            <button onclick="window.location.href='wishlist.html'"
+                class="relative w-9 h-9 rounded-full bg-pink-100/10 hover:bg-pink-100/20 flex items-center justify-center transition-all hover:scale-110 active:scale-90"
+                title="Wishlist">
+                <span class="material-symbols-outlined text-secondary text-[22px]"
+                    style="font-variation-settings:'FILL' 0">favorite</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Search Bar -->
+    <div class="px-4 pt-5 pb-2">
+        <div class="relative">
+            <span
+                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray -700">search</span>
+            <input type="text" id="searchInput" placeholder="Search drinks..."
+                class="w-full bg-bg-card border border-gray-300 rounded-full pl-12 pr-5 py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30 transition-all"
+                oninput="filterCards()" />
+        </div>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="px-4 py-4">
+        <div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
+            <button onclick="filterCategory('all')" data-cat="all"
+                class="filter-tab tab-active bg-primary text-bg-dark px-5 py-2.5 rounded-full text-sm font-extrabold whitespace-nowrap transition-all shadow-lg shadow-primary/20">
+                🍹 All Drinks
+            </button>
+            <button onclick="filterCategory('milkshake')" data-cat="milkshake"
+                class="filter-tab bg-secondary/10 text-rose-800/60 px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap border border-secondary/20 transition-all hover:bg-secondary/20 hover:text-rose-800">
+                🥤 Milkshakes
+            </button>
+            <button onclick="filterCategory('nutdrink')" data-cat="nutdrink"
+                class="filter-tab bg-secondary/10 text-rose-800/60 px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap border border-secondary/20 transition-all hover:bg-secondary/20 hover:text-rose-800">
+                🥜 Nut Drinks
+            </button>
+            <button onclick="filterCategory('juice')" data-cat="juice"
+                class="filter-tab bg-secondary/10 text-rose-800/60 px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap border border-secondary/20 transition-all hover:bg-secondary/20 hover:text-rose-800">
+                🍊 Juices
+            </button>
+            <button onclick="filterCategory('smoothie')" data-cat="smoothie"
+                class="filter-tab bg-secondary/10 text-rose-800/60 px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap border border-secondary/20 transition-all hover:bg-secondary/20 hover:text-rose-800">
+                🫐 Smoothies
+            </button>
+            <button onclick="filterCategory('mojito')" data-cat="mojito"
+                class="filter-tab bg-secondary/10 text-rose-800/60 px-5 py-2.5 rounded-full text-sm font-bold whitespace-nowrap border border-secondary/20 transition-all hover:bg-secondary/20 hover:text-rose-800">
+                🍋 Soda & Mojito
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Found Banner -->
+    <div id="searchFound" class="search-found px-4 pb-2">
+        <div
+            class="bg-gradient-to-r from-primary/15 via-secondary/10 to-pista/15 rounded-2xl p-4 border border-primary/10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <div class="float-icon text-lg">🥤</div>
+                    <div class="float-icon text-lg">✨</div>
+                    <div class="float-icon text-sm">🍓</div>
+                    <div class="float-icon text-sm">🥭</div>
+                </div>
+                <span id="resultBadge"
+                    class="pulse-badge bg-primary/20 text-primary text-xs font-extrabold px-3 py-1 rounded-full"></span>
+            </div>
+            <p class="text-sm font-bold text-white mt-2">Yay! We found something delicious for you <span
+                    class="twinkle">🥤</span><span class="twinkle">✨</span></p>
+            <p class="text-[11px] text-white/40 mt-0.5">Scroll down to explore your matches</p>
+        </div>
+    </div>
+
+    <!-- No Results Card -->
+    <div id="searchEmpty" class="search-empty px-4 py-10 flex-col items-center justify-center text-center">
+        <div
+            class="bg-gradient-to-br from-secondary/10 via-primary/8 to-pista/10 rounded-3xl p-8 border border-white/5 shadow-xl max-w-sm mx-auto">
+            <div class="text-5xl mb-4 bounce-icon">🍹</div>
+            <h3 class="text-xl font-extrabold text-pink-700 mb-2">Oops! No drinks found <span
+                    class="text-secondary">💔</span></h3>
+            <p class="text-sm text-gray-500 mb-5">Try searching something tasty!</p>
+            <div class="flex justify-center gap-3 text-2xl">
+                <span class="float-icon">🍊</span>
+                <span class="float-icon">🥛</span>
+                <span class="float-icon">🍋</span>
+                <span class="float-icon">🫐</span>
+            </div>
+            <button onclick="clearSearch()"
+                class="mt-5 bg-primary/20 hover:bg-primary text-primary hover:text-bg-dark px-6 py-2 rounded-full text-sm font-bold transition-all">
+                Clear Search
+            </button>
+        </div>
+    </div>
+
+    <!-- =========================================== -->
+    <!-- DYNAMIC MENU SECTIONS -->
+    <!-- =========================================== -->
+    <div id="dynamicMenuContainer">
+        <!-- Sections and items will be injected here by renderMenu() -->
+    </div>
+
+    <script>
+        const LOCAL_STORAGE_KEY = 'menuItems';
+
+        // Initial Seed Data (Preserving existing items)
+        const seedData = [
+            // Milkshakes
+            { name: "Rosemilk", price: "150", category: "milkshake", theme: "strawberry", img: "https://i.pinimg.com/1200x/49/e9/0c/49e90c3e7a08474e057912b5e5a6ce3e.jpg", desc: "Rich chocolate blending with thick vanilla ice cream." },
+            { name: "Strawberry Bliss", price: "160", category: "milkshake", theme: "strawberry", img: "https://i.pinimg.com/736x/02/9d/7d/029d7d0ad24b28f8effba1da2a093442.jpg", desc: "Real strawberries, sweet cream." },
+            { name: "Oreo Overload", price: "190", category: "milkshake", theme: "choco", img: "https://i.pinimg.com/736x/0f/0d/24/0f0d24fa75d2c4cc73945be745f9d314.jpg", desc: "Crunchy cookie crumbles in a milk base." },
+            { name: "Mango Madness", price: "170", category: "milkshake", theme: "mango", img: "https://i.pinimg.com/736x/72/5d/12/725d1227c954edc01e48fb85b94acd35.jpg", desc: "Fresh Alphonso pulp, creamy delight." },
+            { name: "Banana Classic", price: "130", category: "milkshake", theme: "banana", img: "https://i.pinimg.com/736x/5d/34/3b/5d343b333d2e0a87c7b115fa70897c24.jpg", desc: "Classic sweet banana and milk blend." },
+            { name: "Blueberry Burst", price: "180", category: "milkshake", theme: "berry", img: "https://i.pinimg.com/736x/ef/7d/0d/ef7d0d3dff62bd9bda2ff8216e72f1b9.jpg", desc: "Tangy blueberries with sweet cream." },
+            { name: "Peanut Butter Shake", price: "190", category: "milkshake", theme: "choco", img: "https://i.pinimg.com/1200x/a1/57/20/a15720c5701158b982ef452104e7f157.jpg", desc: "Thick peanut butter fusion." },
+
+            // Nut Drinks
+            { name: "Badam Milk", price: "140", category: "nutdrink", theme: "pista", img: "https://images.pexels.com/photos/2113915/pexels-photo-2113915.jpeg", desc: "Warm almond milk with saffron.", tag: "🛡️ Immunity Boost" },
+            { name: "Pista Shake", price: "160", category: "nutdrink", theme: "pista", img: "https://i.pinimg.com/736x/e2/58/06/e258060b0f6e4664820b52990e8e2b5b.jpg", desc: "Rich roasted pistachios blended thick.", tag: "💪 Protein Rich" },
+            { name: "Dates & Walnut", price: "210", category: "nutdrink", theme: "choco", img: "https://i.pinimg.com/1200x/34/27/10/342710d0af4358d61322329c09cbc494.jpg", desc: "Natural sugar strings and crunch.", tag: "⚡ Energy Booster" },
+            { name: "Dry Fruit Special", price: "250", category: "nutdrink", theme: "mango", img: "https://i.pinimg.com/736x/fb/a0/bc/fba0bcbf553d18b190f8c1d4a68e2ada.jpg", desc: "The ultimate nut collection in a glass.", tag: "👑 Premium Choice" },
+
+
+            // Juices
+            { name: "Fresh Orange", price: "120", category: "juice", theme: "orange", img: "https://images.pexels.com/photos/338713/pexels-photo-338713.jpeg", desc: "Cold-pressed Nagpur oranges." },
+            { name: "Fresh Apple", price: "130", category: "juice", theme: "apple", img: "https://i.pinimg.com/736x/7d/0b/4e/7d0b4ebbb876ac69a112ecc0d4fb9e9e.jpg", desc: "Sweet Shimla apples pressed fresh." },
+            { name: "Watermelon Chill", price: "100", category: "juice", theme: "watermelon", img: "https://i.pinimg.com/736x/16/16/30/161630d2788574a0434cefb14fc43fd4.jpg", desc: "Ice-cold hydrating watermelon juice." },
+            { name: "Pineapple Punch", price: "110", category: "juice", theme: "pineapple", img: "https://i.pinimg.com/736x/96/84/db/9684db93d77b3819d899303c909cf806.jpg", desc: "Tropical sweet and sour fruit juice." },
+
+
+
+            // Soda & Mojitos
+            { name: "Mint Mojito", price: "110", category: "mojito", theme: "mojito", img: "https://images.pexels.com/photos/7259042/pexels-photo-7259042.jpeg", desc: "Classic mint and lime refreshing splash." },
+            { name: "Blue Lagoon", price: "150", category: "mojito", theme: "lagoon", img: "https://i.pinimg.com/736x/27/8c/ff/278cff54998b3a790f4be858df2c7ffd.jpg", desc: "The ultimate blue citrus refresher." },
+            { name: "Lemon Soda", price: "80", category: "mojito", theme: "lemon", img: "https://i.pinimg.com/736x/f2/3c/bd/f23cbdd8ef4dbea21ff7d4857422994f.jpg", desc: "Salt sweet fizz of lemon." },
+            { name: "Green Apple Soda", price: "120", category: "mojito", theme: "apple", img: "https://i.pinimg.com/1200x/f7/01/1b/f7011b8ec27d98698e0d3dbfec17a754.jpg", desc: "Tangy green apple sparkling fizz." },
+
+
+            // Smoothies
+            { name: "Cosmic Coconut Smoothie", price: "190", category: "smoothie", theme: "coconut", img: "https://i.pinimg.com/736x/17/fb/d8/17fbd809f70dbd5bf7b26450d58f52a4.jpg", desc: "Thick creamy coconut and banana blend.", tag: "🥥 Tropical" },
+            { name: "Raspberry Smoothie", price: "210", category: "smoothie", theme: "berry", img: "https://i.pinimg.com/736x/68/02/02/680202948b013ae47a4f7ce5c3102136.jpg", desc: "Mixed berries loaded with antioxidants.", tag: "✨ Fresh" },
+            { name: "Velvet Tropica Smoothie", price: "200", category: "smoothie", theme: "mango", img: "https://i.pinimg.com/736x/98/a6/97/98a697fd2edc0ce8a2e097125c324edf.jpg", desc: "Mango, pineapple and passion fruit velvet.", tag: "🌴 Exotic" },
+            { name: "Frosted Sunrise Smoothie", price: "180", category: "smoothie", theme: "orange", img: "https://i.pinimg.com/736x/43/81/e3/4381e3db535e05997e88f3e4fe420678.jpg", desc: "Orange, peach and icy yogurt sunrise.", tag: "🌅 Morning Boost" },
+            { name: "Emerald Energy Smoothie", price: "220", category: "smoothie", theme: "guava", img: "https://i.pinimg.com/736x/e6/63/16/e66316f55a796ccc9f7cbf337372b328.jpg", desc: "Spinach, kiwi, and green apple detox.", tag: "🌿 Detox" },
+            { name: "Unicorn Smoothie", price: "200", category: "smoothie", theme: "unicorn", img: "https://i.pinimg.com/736x/a9/e6/e1/a9e6e14026787f6735507a1c9ddd10fb.jpg", desc: "Thick golden mango glowing smoothie.", tag: "⭐ Energy Boost" }
+        ];
+
+        // Supabase configuration
+        const SUPABASE_URL = 'https://ppolrmntxvpkmoffqxmv.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_hbAgnUPAaANpVewJnaaXYA_-KD9knUv';
+
+        async function getMenuItems() {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/menu_items?select=*&order=created_at.asc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Failed to fetch from Supabase');
+                
+                const items = await response.json();
+                
+                // If database is empty, fallback to seedData
+                if (items.length === 0) {
+                    return seedData;
+                }
+                
+                return items;
+            } catch (err) {
+                console.error("Error fetching menu items:", err);
+                // Fallback to local array on error
+                return seedData;
+            }
+        }
+
+        const CATEGORY_MAP = {
+            'milkshake': { title: 'Signature Milkshakes', icon: '🥤', desc: 'Thick, creamy and oh-so-delicious' },
+            'nutdrink': { title: 'Power-Packed Nut Drinks', icon: '🥜', desc: 'Natural energy for your busy day' },
+            'juice': { title: 'Fresh Fruit Juices', icon: '🍊', desc: '100% fresh, zero preservatives' },
+            'smoothie': { title: 'Healthy Smoothies', icon: '🫐', desc: 'Thick blends for health and detox' },
+            'mojito': { title: 'Soda & Mojitos', icon: '🍋', desc: 'Bubbling freshness in every sip' }
+        };
+
+        async function renderMenu() {
+            const container = document.getElementById('dynamicMenuContainer');
+            // Show loading state
+            container.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin text-3xl">🥤</div></div>';
+            
+            const items = await getMenuItems();
+            container.innerHTML = '';
+
+            // Group by category
+            const grouped = {};
+            items.forEach(item => {
+                const cat = item.category || 'other';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(item);
+            });
+
+            // Render sections
+            Object.keys(grouped).forEach(cat => {
+                const info = CATEGORY_MAP[cat] || { title: cat.toUpperCase(), icon: '🍹', desc: 'Extra treats' };
+                const section = document.createElement('section');
+                section.id = 'sec-' + cat;
+                section.className = 'px-4 pt-4 pb-8 category-section';
+                section.dataset.category = cat;
+
+                let sectionHtml = `
+                    <div class="flex items-center gap-2 mb-5">
+                        <div class="w-8 h-8 bg-primary/15 rounded-lg flex items-center justify-center">
+                            <span class="text-base">${info.icon}</span>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-extrabold text-rose-400">${info.title}</h2>
+                            <p class="text-xs text-rose-400">${info.desc}</p>
+                        </div>
+                    </div>
+                    <div class="menu-grid">
+                `;
+
+                grouped[cat].forEach(item => {
+                    // Make sure we use "desc" column
+                    const description = item.desc || item.desc_text || '';
+                    sectionHtml += `
+                        <div class="menu-card fade-in bg-bg-card rounded-[24px] overflow-hidden border border-secondary/10 shadow-sm cursor-pointer group relative"
+                            onclick="openDrinkDetail(this)" 
+                            data-drink="${item.theme || 'default'}" 
+                            data-theme="${item.theme || 'default'}"
+                            data-name="${item.name}" 
+                            data-price="${item.price}"
+                            data-img="${item.img}"
+                            data-desc="${description}">
+                            <div class="card-img-container">
+                                <img class="card-img" alt="${item.name}" src="${item.img}" loading="lazy" decoding="async" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-bg-card via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                ${item.tag ? `<span class="absolute top-3 left-3 bg-secondary text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-lg z-10">${item.tag}</span>` : ''}
+                            </div>
+                            <div class="p-4 pr-16"> <!-- Added padding-right to prevent overlap with button -->
+                                <div class="mb-1">
+                                    <h4 class="font-bold text-secondary text-sm leading-tight">${item.name}</h4>
+                                    <span class="font-extrabold text-secondary text-sm">₹${item.price}</span>
+                                </div>
+                                <p class="text-[11px] text-secondary/60 line-clamp-2">${description}</p>
+                            </div>
+                            <button onclick="event.stopPropagation(); handleAddBtnClick(this, '${item.name}')"
+                                class="add-btn-circle flex items-center justify-center">
+                                <span class="material-symbols-outlined">add</span>
+                            </button>
+                        </div>
+                    `;
+                });
+
+                sectionHtml += `</div>`;
+                section.innerHTML = sectionHtml;
+                container.appendChild(section);
+            });
+
+            // Re-trigger observer and heart injections
+            observeCards();
+            injectHeartButtons();
+            syncWishlistHearts();
+        }
+
+        // Initialize dynamic rendering
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenu();
+        });
+    </script>
+
+    <!-- Bottom Nav Bar -->
+    <div
+        class="fixed bottom-0 left-0 right-0 z-50 bg-bg-darker/95 backdrop-blur-xl border-t border-secondary/10 px-4 py-2.5 flex justify-between items-center">
+        <a class="flex flex-col items-center gap-1 text-secondary/40 hover:text-secondary transition-colors"
+            href="index.html">
+            <span class="material-symbols-outlined">home</span>
+            <span class="text-[10px] font-medium">Home</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-secondary" href="menu.html">
+            <span class="material-symbols-outlined fill-1">restaurant_menu</span>
+            <span class="text-[10px] font-bold">Menu</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-secondary/40 hover:text-secondary transition-colors" href="#">
+            <span class="material-symbols-outlined">local_offer</span>
+            <span class="text-[10px] font-medium">Deals</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-secondary/40 hover:text-secondary transition-colors"
+            href="settings.html">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="text-[10px] font-medium">Settings</span>
+        </a>
+    </div>
+
+    <!-- Padding for bottom nav -->
+    <div class="h-20"></div>
+
+    <!-- Drink Splash Overlay -->
+    <div id="drinkSplash" class="drink-splash">
+        <div class="splash-bg"></div>
+        <div class="splash-glow"></div>
+        <div class="splash-content">
+            <div class="splash-icon" id="splashIcon">🥤</div>
+            <div class="splash-text" id="splashText">Blending your drink... 🥤✨</div>
+        </div>
+    </div>
+    <div class="wipe-overlay" id="wipeOverlay"></div>
+
+    <script src="cart.js"></script>
+    <script src="wishlist.js"></script>
+    <style>
+        @keyframes heartPop {
+            0% {
+                transform: scale(1);
+            }
+
+            40% {
+                transform: scale(1.5);
+            }
+
+            70% {
+                transform: scale(0.85);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .heart-pop {
+            animation: heartPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .wishlist-heart-btn {
+            transition: all 0.2s ease;
+        }
+
+        .wishlist-heart-btn:hover {
+            transform: scale(1.15);
+        }
+    </style>
+    <script>
+
+        function handleAddBtnClick(btn, itemName) {
+            if (btn.classList.contains('rotating')) return; // Prevent multiple clicks during animation
+
+            // Trigger rotation
+            btn.classList.add('rotating');
+
+            // Add to cart
+            addToCart(itemName);
+
+            // Icon swap after rotation
+            const icon = btn.querySelector('.material-symbols-outlined');
+            
+            setTimeout(() => {
+                icon.textContent = 'check';
+                btn.classList.remove('rotating');
+                btn.classList.add('success');
+                
+                // Revert after 1.5s
+                setTimeout(() => {
+                    icon.textContent = 'add';
+                    btn.classList.remove('success');
+                }, 1500);
+            }, 450);
+        }
+
+        function addToCart(name) {
+            const cards = document.querySelectorAll('.menu-card');
+            let card = null;
+            for (let c of cards) {
+                if (c.dataset.name === name) {
+                    card = c;
+                    break;
+                }
+            }
+            if (!card) return;
+
+            const item = {
+                name: name,
+                price: parseInt(card.dataset.price),
+                img: card.dataset.img,
+                size: 'Regular',
+                quantity: 1,
+                theme: card.dataset.theme || 'default'
+            };
+            addItemToCart(item);
+        }
+
+        // ============================
+        // Category Filter
+        // ============================
+        function filterCategory(category) {
+            // Update tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                const isActive = tab.dataset.cat === category;
+                tab.classList.toggle('tab-active', isActive);
+                tab.classList.toggle('bg-primary', isActive);
+                tab.classList.toggle('text-bg-dark', isActive);
+                tab.classList.toggle('font-extrabold', isActive);
+                tab.classList.toggle('shadow-lg', isActive);
+                tab.classList.toggle('shadow-primary/20', isActive);
+
+                tab.classList.toggle('bg-secondary/10', !isActive);
+                tab.classList.toggle('text-rose-800/60', !isActive);
+                tab.classList.toggle('font-bold', !isActive);
+                tab.classList.toggle('border-secondary/20', !isActive);
+            });
+
+            // Show/hide sections
+            document.querySelectorAll('.category-section').forEach(section => {
+                if (category === 'all' || section.dataset.category === category) {
+                    section.style.display = '';
+                    // Re-trigger fade-in
+                    section.querySelectorAll('.fade-in').forEach(card => {
+                        card.classList.remove('visible');
+                        setTimeout(() => observeCards(), 100);
+                    });
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            // Scroll to top of content
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ============================
+        // Search Filter with Splash
+        // ============================
+        let searchDebounce = null;
+        function filterCards() {
+            clearTimeout(searchDebounce);
+            searchDebounce = setTimeout(() => {
+                const query = document.getElementById('searchInput').value.toLowerCase().trim();
+                const foundBanner = document.getElementById('searchFound');
+                const emptyCard = document.getElementById('searchEmpty');
+                const resultBadge = document.getElementById('resultBadge');
+
+                let visibleCount = 0;
+
+                document.querySelectorAll('.menu-card').forEach(card => {
+                    const name = card.dataset.name || '';
+                    const match = !query || name.includes(query);
+                    card.style.display = match ? '' : 'none';
+                    if (match && query) visibleCount++;
+                });
+
+                // Show all sections when searching
+                if (query) {
+                    document.querySelectorAll('.category-section').forEach(s => s.style.display = '');
+                }
+
+                // Hide section headers when no cards visible in that section
+                if (query) {
+                    document.querySelectorAll('.category-section').forEach(section => {
+                        const visibleCards = section.querySelectorAll('.menu-card[style=""], .menu-card:not([style])');
+                        let sectionHasVisible = false;
+                        visibleCards.forEach(c => { if (c.style.display !== 'none') sectionHasVisible = true; });
+                        section.style.display = sectionHasVisible ? '' : 'none';
+                    });
+                }
+
+                // Splash banners
+                if (query && visibleCount > 0) {
+                    resultBadge.textContent = visibleCount + ' drink' + (visibleCount > 1 ? 's' : '') + ' found';
+                    foundBanner.classList.remove('show');
+                    void foundBanner.offsetHeight; // force reflow
+                    foundBanner.classList.add('show');
+                    emptyCard.classList.remove('show');
+                } else if (query && visibleCount === 0) {
+                    emptyCard.classList.remove('show');
+                    void emptyCard.offsetHeight;
+                    emptyCard.classList.add('show');
+                    foundBanner.classList.remove('show');
+                } else {
+                    foundBanner.classList.remove('show');
+                    emptyCard.classList.remove('show');
+                }
+            }, 200);
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filterCards();
+            // Reset all cards visible
+            document.querySelectorAll('.menu-card').forEach(c => c.style.display = '');
+            document.querySelectorAll('.category-section').forEach(s => s.style.display = '');
+            document.getElementById('searchFound').classList.remove('show');
+            document.getElementById('searchEmpty').classList.remove('show');
+        }
+
+        // ============================
+        // Scroll Fade-in Observer
+        // ============================
+        function observeCards() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, index * 80);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in:not(.visible)').forEach(el => observer.observe(el));
+        }
+
+        // ============================
+        // Drink Detail Splash Transition
+        // ============================
+        const THEMES = {
+            'mango': { color: '#FFB300', icon: '🥭', text: 'Mango Magic incoming... 🥭✨' },
+            'pomegranate': { color: '#B91C1C', icon: '🍎', text: 'Pomegranate Ruby pouring... ❤️✨' },
+            'watermelon': { color: '#FF4F81', icon: '🍉', text: 'Watermelon Chill blending... 🍉🧊' },
+            'orange': { color: '#FF9800', icon: '🍊', text: 'Orange Zest squeezing... 🍊✨' },
+            'banana': { color: '#FFC107', icon: '🍌', text: 'Banana creamy shake incoming...🍌🍂' },
+            'lemon': { color: '#FDE047', icon: '🍋', text: 'Lemon Fizz refreshing... 🍋✨' },
+            'apple': { color: '#66BB6A', icon: '🍎', text: 'Apple Freshness pouring... 🍎✨' },
+            'pineapple': { color: '#FDD835', icon: '🍍', text: 'Pineapple Punch blending... 🍍✨' },
+            'guava': { color: '#F472B6', icon: '🍈', text: 'Guava Bliss loading... 🍈💖' },
+            'mojito': { color: '#10B981', icon: '🌿', text: 'Minty freshness loading... 🌿✨' },
+            'lagoon': { color: '#0EA5E9', icon: '💎', text: 'Blue lagoon surfing... 💎🌊' },
+            'unicorn': { color: '#FF4F81', icon: '🦄', text: 'Unicorn Surfing above the clouds...🦄🍨' },
+            'strawberry': { color: '#FF4F81', icon: '🍓', text: 'Berry Bliss pouring... 🍓💖' },
+            'choco': { color: '#3B1F0F', icon: '🍫', text: 'Cocoa dreams blending... 🍫✨' },
+            'pista': { color: '#A8D88E', icon: '🥜', text: 'Nutty energy charging... 🥜💪' },
+            'berry': { color: '#EF4444', icon: '🍉', text: 'Fruity goodness ahead... 🍉🍎' },
+            'dragon': { color: '#FF4F81', icon: '🐍', text: 'Exotic pink refreshment incoming🍸🧃' },
+            'default': { color: '#FFC107', icon: '🥤', text: 'Pouring freshness... 🥤✨' }
+        };
+
+        function openDrinkDetail(element) {
+            const drinkId = element.dataset.drink || 'default';
+            const splash = document.getElementById('drinkSplash');
+            const iconEl = document.getElementById('splashIcon');
+            const textEl = document.getElementById('splashText');
+
+            // Determine theme - prioritize data-theme, fallback to data-drink, fallback to default
+            const themeKey = element.dataset.theme || drinkId;
+            const theme = THEMES[themeKey] || THEMES['default'];
+
+            // Set theme color
+            splash.style.setProperty('--splash-color', theme.color);
+            iconEl.textContent = theme.icon;
+            textEl.textContent = theme.text;
+
+            // Activate splash
+            splash.classList.add('active');
+
+            // Duration: 1.2s then transition
+            setTimeout(() => {
+                document.body.classList.add('wipe-active');
+                setTimeout(() => {
+                    // In a real app, we would navigate to drink-detail.html?id=...
+                    // For now, we'll just log and simulate or navigate if page exists
+                    const name = element.dataset.name;
+                    const price = element.dataset.price || '180';
+                    const img = element.dataset.img || '';
+                    const desc = element.dataset.desc || '';
+                    console.log(`Opening detail for: ${name} with theme: ${themeKey}`);
+
+                    // Navigate to detail page with parameters
+                    const themeToPass = element.dataset.theme || drinkId;
+                    const categoryToPass = element.dataset.category || '';
+                    window.location.href = `drink-detail.html?name=${encodeURIComponent(name)}&theme=${themeToPass}&price=${price}&img=${encodeURIComponent(img)}&desc=${encodeURIComponent(desc)}&category=${encodeURIComponent(categoryToPass)}`;
+                }, 400); // mid-wipe
+            }, 1200);
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            observeCards();
+            injectHeartButtons();
+            syncWishlistHearts();
+        });
+
+        // Inject a heart (wishlist) button into each .menu-card image — top-right overlay
+        function injectHeartButtons() {
+            document.querySelectorAll('.menu-card').forEach(card => {
+                const name = card.dataset.name;
+                if (!name) return;
+
+                if (card.querySelector('.wishlist-heart-btn')) return;
+
+                const img = card.dataset.img || '';
+                const price = card.dataset.price || '0';
+                const desc = card.dataset.desc || '';
+                const drink = card.dataset.drink || 'default';
+
+                const btn = document.createElement('button');
+                // Standardized top-right positioning for menu cards
+                btn.className = 'wishlist-heart-btn absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 hover:bg-secondary/60 backdrop-blur-md flex items-center justify-center transition-all active:scale-90 z-20';
+                btn.title = 'Save to Wishlist';
+                btn.setAttribute('data-wishlist-btn', name);
+                btn.innerHTML = `<span class="material-symbols-outlined text-white text-[20px]" style="font-variation-settings:'FILL' 0">favorite</span>`;
+
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleWishlist({ name, img, price, desc, drink }, btn);
+                });
+
+                // Ensure card is relative for absolute positioning
+                if (getComputedStyle(card).position === 'static') {
+                    card.style.position = 'relative';
+                }
+                card.appendChild(btn);
+            });
+        }
+    </script>
+    <!-- Bottom Nav -->
+    <div
+        class="fixed bottom-0 left-0 right-0 z-50 bg-bg-darker/95 backdrop-blur-xl border-t border-secondary/10 px-4 py-2.5 flex justify-around items-center">
+        <a class="flex flex-col items-center gap-1 text-rose-800/40 hover:text-secondary transition-colors"
+            href="index.html">
+            <span class="material-symbols-outlined">home</span>
+            <span class="text-[10px] font-bold">Home</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-secondary" href="menu.html">
+            <span class="material-symbols-outlined fill-1">restaurant_menu</span>
+            <span class="text-[10px] font-bold">Menu</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-rose-800/40 hover:text-secondary transition-colors"
+            href="deals.html">
+            <span class="material-symbols-outlined">local_offer</span>
+            <span class="text-[10px] font-bold">Deals</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-rose-800/40 hover:text-secondary transition-colors"
+            href="settings.html">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="text-[10px] font-bold">Settings</span>
+        </a>
+    </div>
+
+    <!-- Bottom Spacing -->
+    <div class="h-20"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Your Cart | NutriShake Bar</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#FFC107",
+                        "secondary": "#FF4F81",
+                        "bg-dark": "#FFF0F6",
+                        "bg-darker": "#FFE4F0",
+                        "bg-card": "#FFFFFF",
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #FFF0F6;
+            color: #5C3A2A;
+            min-height: 100dvh;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(255, 79, 129, 0.08);
+            border: 1px solid rgba(255, 79, 129, 0.05);
+        }
+
+        .dark-theme .border-white\/10 {
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-bg-dark text-rose-800 font-display">
+    <nav
+        class="sticky top-0 z-50 bg-bg-darker/90 backdrop-blur-xl border-b border-white/5 px-4 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="material-symbols-outlined text-rose-800">arrow_back</a>
+            <h1 class="text-lg font-extrabold tracking-tight text-rose-800">Your Cart</h1>
+        </div>
+        <button onclick="handleRemoveAll()" 
+            class="text-xs font-bold text-secondary bg-secondary/10 px-3 py-1.5 rounded-full hover:bg-secondary hover:text-white transition-all active:scale-95">
+            Remove All
+        </button>
+    </nav>
+
+    <div class="px-4 py-6 max-w-2xl mx-auto">
+        <div id="cartItemsList" class="space-y-4">
+            <!-- Items injected here -->
+        </div>
+
+        <div id="emptyCart" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <span class="material-symbols-outlined text-6xl text-rose-300/30 mb-4">shopping_cart_off</span>
+            <h2 class="text-xl font-bold text-rose-800">Your cart is empty</h2>
+            <p class="text-sm text-rose-800 mt-1">Add some delicious drinks to get started!</p>
+            <a href="menu.html"
+                class="mt-8 bg-secondary text-white px-8 py-3 rounded-full font-extrabold text-sm shadow-lg shadow-secondary/20 active:scale-95 transition-all">Explore Menu</a>
+        </div>
+
+        <div id="cartSummary" class="mt-10 border-t border-secondary/10 pt-6">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-rose-800/50 font-bold">Total Amount</span>
+                <span class="text-2xl font-extrabold text-secondary">₹<span id="grandTotal">0</span></span>
+            </div>
+            <button onclick="window.location.href='address.html'"
+                class="w-full bg-secondary text-white py-4 rounded-2xl font-extrabold text-base shadow-xl shadow-secondary/20 active:scale-[0.98] transition-transform">Proceed
+                to Checkout</button>
+        </div>
+    </div>
+
+    <script src="cart.js"></script>
+    <script>
+        function renderCart() {
+            const cart = getCart();
+            const list = document.getElementById('cartItemsList');
+            const summary = document.getElementById('cartSummary');
+            const empty = document.getElementById('emptyCart');
+
+            if (cart.length === 0) {
+                list.innerHTML = '';
+                summary.style.display = 'none';
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            summary.style.display = 'block';
+
+            let total = 0;
+            list.innerHTML = cart.map(item => {
+                total += item.price * item.quantity;
+                return `
+                    <div class="bg-bg-card border border-white/5 rounded-2xl p-4 flex gap-4">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                            <img src="${item.img}" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-sm">${item.name}</h3>
+                                    <p class="text-[10px] text-gray-8000">${item.size}</p>
+                                </div>
+                                <button onclick="removeFromCart(${item.id})" class="text-rose-300/40 hover:text-secondary transition-colors">
+                                    <span class="material-symbols-outlined text-sm">close</span>
+                                </button>
+                            </div>
+                            <div class="flex justify-between items-end mt-2">
+                                <div class="flex items-center gap-3 bg-secondary/5 rounded-lg px-2 py-1">
+                                    <button onclick="updateQuantity(${item.id}, -1)" class="material-symbols-outlined text-sm text-rose-800/60">remove</button>
+                                    <span class="text-sm font-bold min-w-[20px] text-center text-rose-800">${item.quantity}</span>
+                                    <button onclick="updateQuantity(${item.id}, 1)" class="material-symbols-outlined text-sm text-rose-800/60">add</button>
+                                </div>
+                                <span class="font-extrabold text-secondary">₹${item.price * item.quantity}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('grandTotal').textContent = total;
+        }
+
+        // ============================
+        // Toast Notification
+        // ============================
+        let _toastTimer;
+        function showToast(msg, icon = '🛒', duration = 2800) {
+            const toast = document.getElementById('appToast');
+            document.getElementById('appToastMsg').textContent = msg;
+            document.getElementById('appToastIcon').textContent = icon;
+            clearTimeout(_toastTimer);
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            toast.style.pointerEvents = 'auto';
+            _toastTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+                toast.style.pointerEvents = 'none';
+            }, duration);
+        }
+
+        function handleRemoveAll() {
+            const cart = getCart();
+            if (cart.length === 0) {
+                showToast("Nothing to be Removed", 'ℹ️');
+                return;
+            }
+
+            if (confirm("Are you sure you want to clear your entire cart?")) {
+                clearCart();
+                renderCart();
+                showToast("Cart cleared", '🗑️');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', renderCart);
+    </script>
+
+    <!-- Toast notification -->
+    <div id="appToast"
+        style="position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;opacity:0;pointer-events:none;transition:all 0.35s cubic-bezier(0.16,1,0.3,1);">
+        <div
+            style="display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FF4F81,#FF6FA8);color:white;padding:12px 20px;border-radius:999px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;box-shadow:0 8px 28px rgba(255,79,129,0.4);white-space:nowrap;">
+            <span id="appToastIcon" style="font-size:16px;">🛒</span>
+            <span id="appToastMsg">Message</span>
+        </div>
+    </div>
+    <!-- Bottom Nav -->
+    <div
+        class="fixed bottom-0 left-0 right-0 z-50 bg-bg-darker/95 backdrop-blur-xl border-t border-secondary/10 px-4 py-2.5 flex justify-around items-center">
+        <a class="flex flex-col items-center gap-1 text-rose-800/40 hover:text-secondary transition-colors"
+            href="index.html">
+            <span class="material-symbols-outlined">home</span>
+            <span class="text-[10px] font-bold">Home</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-rose-800/40 hover:text-secondary transition-colors"
+            href="menu.html">
+            <span class="material-symbols-outlined">restaurant_menu</span>
+            <span class="text-[10px] font-bold">Menu</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-rose-800/40 hover:text-secondary transition-colors"
+            href="deals.html">
+            <span class="material-symbols-outlined">local_offer</span>
+            <span class="text-[10px] font-bold">Deals</span>
+        </a>
+        <a class="flex flex-col items-center gap-1 text-rose-800/40 hover:text-secondary transition-colors"
+            href="settings.html">
+            <span class="material-symbols-outlined">settings</span>
+            <span class="text-[10px] font-bold">Settings</span>
+        </a>
+    </div>
+
+    <!-- Bottom Spacing -->
+    <div class="h-20"></div>
+
+
+</html>
