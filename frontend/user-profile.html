@@ -222,6 +222,21 @@
 </head>
 
 <body>
+    <script>
+        // AUTH GUARD: Check if customer is logged in
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        const sessionToken = getCookie("customer_session");
+        if (!sessionToken) {
+            // Not authenticated, redirect to login
+            window.location.replace('customer-login.html');
+        }
+    </script>
 
     <!-- Navbar -->
     <nav
@@ -314,10 +329,15 @@
                     </div>
                 </div>
 
-                <div class="pt-4">
+                <div class="pt-4 space-y-3">
                     <button type="submit" class="save-btn flex justify-center items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">check_circle</span>
                         Save Profile
+                    </button>
+                    
+                    <button type="button" onclick="handleLogout()" class="w-full py-4 rounded-2xl border-2 border-rose-500/20 text-rose-500 font-bold flex justify-center items-center gap-2 hover:bg-rose-50 transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">logout</span>
+                        Log Out securely
                     </button>
                 </div>
             </form>
@@ -484,6 +504,17 @@
             _toastTimer = setTimeout(() => {
                 toast.classList.remove('visible');
             }, 2500);
+        }
+
+        function handleLogout() {
+            // Clear customer session cookie
+            document.cookie = "customer_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            
+            // Show toast and redirect
+            showToast("Logging out...", "👋");
+            setTimeout(() => {
+                window.location.replace('index.html');
+            }, 800);
         }
     </script>
     <!-- Success Modal -->

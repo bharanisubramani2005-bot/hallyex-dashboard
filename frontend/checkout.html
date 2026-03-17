@@ -128,9 +128,9 @@
                     </label>
                     <label
                         class="relative flex flex-col items-center justify-center p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:bg-white/10 transition-colors">
-                        <input type="radio" name="payment" value="UPI" class="hidden">
-                        <span class="material-symbols-outlined mb-2">qr_code_2</span>
-                        <span class="text-[11px] font-bold">UPI</span>
+                        <input type="radio" name="payment" value="ONLINE" class="hidden">
+                        <span class="material-symbols-outlined mb-2">credit_score</span>
+                        <span class="text-[11px] font-bold">Pay Online</span>
                     </label>
                 </div>
             </section>
@@ -149,6 +149,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Success Screen -->
     <div id="successScreen"
@@ -213,16 +216,63 @@
             btn.innerHTML = `<span class="material-symbols-outlined animate-spin">sync</span> Validating...`;
             btn.style.pointerEvents = 'none';
 
-            setTimeout(() => {
+            const paymentMode = document.querySelector('input[name="payment"]:checked').value;
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const amount = parseInt(document.getElementById('finalAmount').textContent) * 100; // in paise
+
+            const processSuccess = (paymentId) => {
                 const address = document.getElementById('address').value + ', ' + document.getElementById('city').value;
                 document.getElementById('summaryAddress').textContent = address;
-                document.getElementById('orderId').textContent = '#' + Math.floor(Math.random() * 900000 + 100000);
+                document.getElementById('orderId').textContent = paymentId ? paymentId : '#' + Math.floor(Math.random() * 900000 + 100000);
 
                 document.getElementById('checkoutForm').style.display = 'none';
                 document.getElementById('successScreen').style.display = 'flex';
 
                 clearCart();
-            }, 1200);
+            };
+
+            if (paymentMode === 'ONLINE') {
+                var options = {
+                    "key": "rzp_test_SSMdzq1AunBH40", 
+                    "amount": amount, 
+                    "currency": "INR",
+                    "name": "NutriShake Bar",
+                    "description": "Storefront Order",
+                    "handler": function (response){
+                        processSuccess(response.razorpay_payment_id);
+                    },
+                    "prefill": {
+                        "name": fullName,
+                        "email": email,
+                        "contact": phone
+                    },
+                    "theme": {
+                        "color": "#FFC107"
+                    }
+                };
+                
+                // If user closes modal, reset button
+                options.modal = {
+                    ondismiss: function() {
+                        btn.innerHTML = `Finish Order`;
+                        btn.style.pointerEvents = 'auto';
+                    }
+                };
+
+                var rzp1 = new Razorpay(options);
+                rzp1.on('payment.failed', function (response){
+                    alert("Payment Failed: " + response.error.description);
+                    btn.innerHTML = `Finish Order`;
+                    btn.style.pointerEvents = 'auto';
+                });
+                rzp1.open();
+            } else {
+                setTimeout(() => {
+                    processSuccess();
+                }, 1200);
+            }
         }
     </script>
 </body>

@@ -104,7 +104,7 @@ export default function MenuPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingItem && editingItem.id) {
-      const { id, created_at, ...updateData } = formData as any;
+      const { id, created_at, updated_at, ...updateData } = formData as any;
       const { error } = await supabase
         .from('menu_items')
         .update(updateData)
@@ -118,7 +118,7 @@ export default function MenuPage() {
         setDialogOpen(false);
       }
     } else {
-      const { id, created_at, ...insertData } = formData as any;
+      const { id, created_at, updated_at, ...insertData } = formData as any;
       const { error } = await supabase
         .from('menu_items')
         .insert([insertData]);

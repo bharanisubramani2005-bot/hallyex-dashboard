@@ -516,6 +516,9 @@
     <!-- Bottom spacer -->
     <div class="h-8"></div>
 
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script src="cart.js"></script>
     <script>
         // ============================
@@ -713,76 +716,124 @@
                 // Combine products for product column
                 const productSummary = cart.map(i => `${i.quantity}x ${i.name} (${i.size})`).join(', ');
 
-                // --- SAVE ORDER TO SUPABASE ---
-                const SUPABASE_URL = 'https://ppolrmntxvpkmoffqxmv.supabase.co';
-                const SUPABASE_ANON_KEY = 'sb_publishable_hbAgnUPAaANpVewJnaaXYA_-KD9knUv';
-                
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/customer_orders`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    },
-                    body: JSON.stringify({
-                        first_name: firstName,
-                        last_name: lastName,
-                        email: addr.email || 'customer@example.com',
-                        phone: addr.phone || 'N/A',
-                        street_address: addr.street || 'N/A',
-                        city: addr.city || 'N/A',
-                        state: 'N/A', // Frontend doesn't currently collect this separately
-                        postal_code: addr.pincode || 'N/A',
-                        country: 'India',
-                        product: productSummary,
-                        quantity: cart.reduce((sum, i) => sum + i.quantity, 0),
-                        unit_price: cart.length > 0 ? cart[0].price : 0,
-                        total_amount: total,
-                        status: 'Pending',
-                        created_by: 'Customer (Frontend)'
-                    })
-                });
+                // --- Function to save order and transition to success ---
+                const placeOrderAndFinish = async (razorpayPaymentId) => {
+                    const SUPABASE_URL = 'https://ppolrmntxvpkmoffqxmv.supabase.co';
+                    const SUPABASE_ANON_KEY = 'sb_publishable_hbAgnUPAaANpVewJnaaXYA_-KD9knUv';
+                    
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/customer_orders`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        },
+                        body: JSON.stringify({
+                            first_name: firstName,
+                            last_name: lastName,
+                            email: addr.email || 'customer@example.com',
+                            phone_number: addr.phone || 'N/A',
+                            street_address: addr.street || 'N/A',
+                            city: addr.city || 'N/A',
+                            state_province: 'N/A',
+                            postal_code: addr.pincode || 'N/A',
+                            country: 'India',
+                            product: productSummary,
+                            quantity: cart.reduce((sum, i) => sum + i.quantity, 0),
+                            unit_price: cart.length > 0 ? cart[0].price : 0,
+                            total_amount: total,
+                            status: paymentMode === 'COD' ? 'Pending' : 'Paid',
+                            created_by: 'Customer (Frontend)'
+                        })
+                    });
 
-                if (!response.ok) {
-                    throw new Error('Failed to save order to database.');
+                    if (!response.ok) {
+                        const errData = await response.text();
+                        console.error('Supabase error:', errData);
+                        throw new Error('Failed to save order to database.');
+                    }
+
+                    // Populate success screen
+                    document.getElementById('successTotal').textContent = '₹' + total;
+                    document.getElementById('successOrderId').textContent = razorpayPaymentId || orderId;
+                    document.getElementById('successPayment').textContent =
+                        paymentMode === 'COD' ? 'Cash on Delivery' : 'Paid Online';
+                    document.getElementById('successAddress').textContent =
+                        `${addr.name}, ${addr.street}, ${addr.city} – ${addr.pincode}`;
+
+                    // Success item list
+                    const sList = document.getElementById('successItemList');
+                    sList.innerHTML = cart.map(item => `
+                        <div class="order-row">
+                            <div class="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 bg-secondary/10">
+                                <img src="${item.img}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/36/FFE4F0/FF4F81?text=🥤'">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs font-extrabold text-rose-800 truncate">${item.name}</p>
+                                <p class="text-[10px] text-rose-800/40">${item.size} × ${item.quantity}</p>
+                            </div>
+                            <span class="text-xs font-extrabold text-secondary flex-shrink-0">₹${item.price * item.quantity}</span>
+                        </div>`).join('');
+
+                    clearCart();
+                    localStorage.removeItem(ADDR_KEY);
+                    goToStep(3);
+                };
+
+                // --- RAZORPAY or COD ---
+                if (paymentMode === 'UPI') {
+                    // Online payment via Razorpay
+                    const amountInPaise = total * 100;
+                    var options = {
+                        "key": "rzp_test_SSMdzq1AunBH40",
+                        "amount": amountInPaise,
+                        "currency": "INR",
+                        "name": "NutriShake Bar",
+                        "description": "Storefront Order",
+                        "handler": async function (response) {
+                            try {
+                                await placeOrderAndFinish(response.razorpay_payment_id);
+                            } catch (err) {
+                                console.error(err);
+                                alert("Payment succeeded but failed to save order. Please contact support.");
+                                btn.innerHTML = `<span class="material-symbols-outlined text-lg">rocket_launch</span> Confirm Order`;
+                                btn.style.pointerEvents = 'auto';
+                            }
+                        },
+                        "prefill": {
+                            "name": addr.name || '',
+                            "email": addr.email || '',
+                            "contact": addr.phone || ''
+                        },
+                        "theme": {
+                            "color": "#FF4F81"
+                        },
+                        "modal": {
+                            "ondismiss": function () {
+                                btn.innerHTML = `<span class="material-symbols-outlined text-lg">rocket_launch</span> Confirm Order`;
+                                btn.style.pointerEvents = 'auto';
+                            }
+                        }
+                    };
+
+                    var rzp1 = new Razorpay(options);
+                    rzp1.on('payment.failed', function (response) {
+                        alert("Payment Failed: " + response.error.description);
+                        btn.innerHTML = `<span class="material-symbols-outlined text-lg">rocket_launch</span> Confirm Order`;
+                        btn.style.pointerEvents = 'auto';
+                    });
+                    rzp1.open();
+                } else {
+                    // COD — save order directly
+                    await placeOrderAndFinish();
                 }
-                // -------------------------------------------
-
-                // Populate success
-                document.getElementById('successTotal').textContent = '₹' + total;
-                document.getElementById('successOrderId').textContent = orderId;
-                document.getElementById('successPayment').textContent =
-                    paymentMode === 'COD' ? 'Cash on Delivery' : 'UPI / Online';
-                document.getElementById('successAddress').textContent =
-                    `${addr.name}, ${addr.street}, ${addr.city} – ${addr.pincode}`;
-
-                // Success item list
-                const sList = document.getElementById('successItemList');
-                sList.innerHTML = cart.map(item => `
-                    <div class="order-row">
-                        <div class="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 bg-secondary/10">
-                            <img src="${item.img}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/36/FFE4F0/FF4F81?text=🥤'">
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-xs font-extrabold text-rose-800 truncate">${item.name}</p>
-                            <p class="text-[10px] text-rose-800/40">${item.size} × ${item.quantity}</p>
-                        </div>
-                        <span class="text-xs font-extrabold text-secondary flex-shrink-0">₹${item.price * item.quantity}</span>
-                    </div>`).join('');
-
-                // Clear cart Now ✅
-                clearCart();
-                localStorage.removeItem(ADDR_KEY);
-
-                goToStep(3);
             } catch (err) {
                 console.error(err);
                 alert("There was an error placing your order. Please try again.");
-                btn.innerHTML = `CONFIRM & PAY <span class="material-symbols-outlined ml-2 text-[20px]">arrow_forward</span>`;
+                btn.innerHTML = `<span class="material-symbols-outlined text-lg">rocket_launch</span> Confirm Order`;
                 btn.style.pointerEvents = 'auto';
             }
         }
-
         // ============================
         // Navigation helpers
         // ============================
